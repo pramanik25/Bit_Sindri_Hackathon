@@ -9,13 +9,13 @@ import base64
 app = Flask(__name__)
 CORS(app)
 
-# Configure Tesseract executable path (update it to the location of your tesseract executable)
+# Configure Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = r'D:/Program Files/Tesseract-OCR/tesseract.exe'  # For Windows
 
 # Load YOLOv8 models
-object_model = YOLO("yolov8s.pt")  # Replace with the path to your YOLOv8 weights file for general objects
+object_model = YOLO("yolov8s.pt")
 
-# Load class names (directly from the models if available)
+# Load class names for object detection
 object_class_names = object_model.names
 
 # Preprocess image
@@ -30,11 +30,12 @@ def pre_proc_img(image):
 def draw_boxes(frame, results, class_names, color):
     h, w, _ = frame.shape
     for result in results:
-        boxes = result.boxes.xyxy.cpu().numpy()  # Get bounding boxes
-        confidences = result.boxes.conf.cpu().numpy()  # Get confidences
-        class_ids = result.boxes.cls.cpu().numpy()  # Get class IDs
+        boxes = result.boxes.xyxy.cpu().numpy()
+        confidences = result.boxes.conf.cpu().numpy()
+        class_ids = result.boxes.cls.cpu().numpy()  
         for box, confidence, class_id in zip(boxes, confidences, class_ids):
-            if confidence > 0.5:  # Adjust confidence threshold as needed
+            
+            if confidence > 0.5:
                 x1, y1, x2, y2 = map(int, box)
                 label = f'{class_names[int(class_id)]}: {confidence:.2f}'
                 cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
@@ -50,7 +51,7 @@ def perform_ocr(frame):
 
 # Overlay detected text on the frame
 def overlay_text(frame, text):
-    # Add a background rectangle for the text
+    
     (text_width, text_height), baseline = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)
     cv2.rectangle(frame, (10, 30 - text_height - baseline), (10 + text_width, 30 + baseline), (0, 0, 0), cv2.FILLED)
     cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
@@ -65,17 +66,14 @@ def process_frame():
 
         # Perform object detection
         object_results = object_model(frame)
-
-        # Draw bounding boxes and labels for objects
         frame = draw_boxes(frame, object_results, object_class_names, (0, 255, 0))
+        
         # Perform OCR
         text = perform_ocr(frame)
-
-        # Overlay the detected text on the frame
         frame = overlay_text(frame, text)
 
         _, img_encoded = cv2.imencode('.jpg', frame)
-        img_base64 = base64.b64encode(img_encoded).decode('utf-8')  # Encode image as base64 string
+        img_base64 = base64.b64encode(img_encoded).decode('utf-8')
         response = {
             'frame': img_base64,
             'text': text
