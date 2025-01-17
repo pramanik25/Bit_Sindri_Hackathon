@@ -1,0 +1,9 @@
+streamlit
+opencv-python
+flask
+flask-cors
+requests
+numpy
+pillow
+pytesseract
+ultralytics
