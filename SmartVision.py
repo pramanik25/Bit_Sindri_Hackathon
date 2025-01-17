@@ -72,15 +72,20 @@ def process_frame():
         text = perform_ocr(frame)
         frame = overlay_text(frame, text)
 
+        # Encode frame to JPEG
         _, img_encoded = cv2.imencode('.jpg', frame)
-        img_base64 = base64.b64encode(img_encoded).decode('utf-8')
-        response = {
-            'frame': img_base64,
-            'text': text
-        }
-        return jsonify(response)
+
+        # Return binary response with text in headers
+        response = app.response_class(
+            response=img_encoded.tobytes(),
+            status=200,
+            mimetype='image/jpeg'
+        )
+        response.headers['Food-Quality'] = text  # Send the quality text as a header
+        return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

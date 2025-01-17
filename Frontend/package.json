@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "A React application for Smart Quality Vision Testing System",
   "main": "src/index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "scripts": {
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
