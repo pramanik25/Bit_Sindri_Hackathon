@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Configure Tesseract OCR
-pytesseract.pytesseract.tesseract_cmd = r'D:/Program Files/Tesseract-OCR/tesseract.exe'  # For Windows
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'  # For Windows
 
 # Load YOLOv8 models
 object_model = YOLO("yolov8s.pt")
