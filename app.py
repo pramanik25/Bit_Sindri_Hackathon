@@ -16,9 +16,6 @@ object_model = YOLO("yolov8s.pt")
 logo_model = YOLO("logo.pt")
 fresh_model = load_model('rottenvsfresh.h5')
 
-# model = mobilenet_v2(pretrained=False)
-# model.load_state_dict(torch.load('logo.pth'))
-
 # Load class names
 object_class_names = object_model.names
 logo_class_names = logo_model.names
