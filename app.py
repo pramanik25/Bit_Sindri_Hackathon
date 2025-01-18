@@ -9,7 +9,7 @@ from torchvision.models import mobilenet_v2
 import torch
 
 # Configure Tesseract path
-pytesseract.pytesseract.tesseract_cmd = r'D:/Program Files/Tesseract-OCR/tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 # Load models
 object_model = YOLO("yolov8s.pt")
@@ -43,6 +43,7 @@ def evaluate_rotten_vs_fresh(image):
     return prediction[0][0]
 
 def draw_boxes(frame, results, class_names, color):
+    logo_detected = False
     for result in results:
         boxes = result.boxes.xyxy.cpu().numpy()
         confidences = result.boxes.conf.cpu().numpy()
@@ -51,7 +52,11 @@ def draw_boxes(frame, results, class_names, color):
             if confidence > 0.5:
                 x1, y1, x2, y2 = map(int, box)
                 label = f'{class_names[int(class_id)]}: {confidence:.2f}'
-                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                if class_names[int(class_id)] == 'logo':  # Assuming 'logo' is the class name for logos
+                    logo_detected = True
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Blue color for logo
+                else:
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                 if class_names[int(class_id)] in ['apple', 'banana', 'orange']:
                     crop_img = frame[y1:y2, x1:x2]
@@ -59,6 +64,12 @@ def draw_boxes(frame, results, class_names, color):
                     freshness_label, freshness_color = print_fresh(freshness_score)
                     cv2.putText(frame, freshness_label, (x1, y1 - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, freshness_color, 2)
                     cv2.rectangle(frame, (x1, y1), (x2, y2), freshness_color, 2)
+    
+    if not logo_detected:
+        height, width, _ = frame.shape
+        cv2.rectangle(frame, (0, 0), (width, height), (0, 0, 255), 2)  # Red color for no logo
+        cv2.putText(frame, "No correct brand logo found", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    
     return frame
 
 
