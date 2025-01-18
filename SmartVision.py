@@ -5,12 +5,13 @@ import numpy as np
 import pytesseract
 from ultralytics import YOLO
 import base64
+import logging
 
 app = Flask(__name__)
 CORS(app)
 
 # Configure Tesseract OCR
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'  # For Windows
+pytesseract.pytesseract.tesseract_cmd = r'D:/Program Files/Tesseract-OCR/tesseract.exe'  # For Windows
 
 # Load YOLOv8 models
 object_model = YOLO("yolov8s.pt")
@@ -34,7 +35,6 @@ def draw_boxes(frame, results, class_names, color):
         confidences = result.boxes.conf.cpu().numpy()
         class_ids = result.boxes.cls.cpu().numpy()  
         for box, confidence, class_id in zip(boxes, confidences, class_ids):
-            
             if confidence > 0.5:
                 x1, y1, x2, y2 = map(int, box)
                 label = f'{class_names[int(class_id)]}: {confidence:.2f}'
@@ -51,7 +51,6 @@ def perform_ocr(frame):
 
 # Overlay detected text on the frame
 def overlay_text(frame, text):
-    
     (text_width, text_height), baseline = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)
     cv2.rectangle(frame, (10, 30 - text_height - baseline), (10 + text_width, 30 + baseline), (0, 0, 0), cv2.FILLED)
     cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
@@ -84,8 +83,8 @@ def process_frame():
         response.headers['Food-Quality'] = text  # Send the quality text as a header
         return response
     except Exception as e:
+        logging.error(f"Error processing frame: {e}")
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
