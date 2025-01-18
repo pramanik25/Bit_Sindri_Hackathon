@@ -16,8 +16,8 @@ object_model = YOLO("yolov8s.pt")
 logo_model = YOLO("logo.pt")
 fresh_model = load_model('rottenvsfresh.h5')
 
-model = mobilenet_v2(pretrained=False)
-model.load_state_dict(torch.load('logo.pth'))
+# model = mobilenet_v2(pretrained=False)
+# model.load_state_dict(torch.load('logo.pth'))
 
 # Load class names
 object_class_names = object_model.names
@@ -101,7 +101,7 @@ if mode == "Image Upload":
 elif mode == "Live Camera Feed":
     st.write("Analyzing live camera feed. Press 'Q' to exit.")
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
