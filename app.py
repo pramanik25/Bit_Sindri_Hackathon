@@ -76,7 +76,7 @@ if mode == "Image Upload":
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
 
     if uploaded_file is not None:
-        # Convert uploaded file to OpenCV format
+        # Convert uploaded file to OpenCV formats
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         frame = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
